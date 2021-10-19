@@ -46,6 +46,7 @@ const draw = () => {
 
   drawBall(); // 공을 화면에 표시한다
   drawPaddle();
+  collisionDetection();
   drawBricks();
 
   if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
@@ -93,17 +94,19 @@ const keyUpHandler = (e) => {
 const drawBricks = () => {
   for (var c = 0; c < brickColumnCount; c++) {
     for (var r = 0; r < brickRowCount; r++) {
-      var brickX = c * (brickWidth + brickPadding) + brickOffsetLeft;
-      var brickY = r * (brickHeight + brickPadding) + brickOffsetTop;
+      if (bricks[c][r].status == 1) {
+        var brickX = c * (brickWidth + brickPadding) + brickOffsetLeft;
+        var brickY = r * (brickHeight + brickPadding) + brickOffsetTop;
 
-      bricks[c][r].x = brickX;
-      bricks[c][r].y = brickY;
+        bricks[c][r].x = brickX;
+        bricks[c][r].y = brickY;
 
-      ctx.beginPath();
-      ctx.rect(brickX, brickY, brickWidth, brickHeight);
-      ctx.fillStyle = '#0095DD';
-      ctx.fill();
-      ctx.closePath();
+        ctx.beginPath();
+        ctx.rect(brickX, brickY, brickWidth, brickHeight);
+        ctx.fillStyle = '#0095DD';
+        ctx.fill();
+        ctx.closePath();
+      }
     }
   }
 };
@@ -112,7 +115,17 @@ const collisionDetection = () => {
   for (let c = 0; c < brickColumnCount; c++) {
     for (let r = 0; r < brickRowCount; r++) {
       var b = bricks[c][r];
-      // calculations
+      if (b.status == 1) {
+        if (
+          x > b.x &&
+          x < b.x + brickWidth &&
+          y > b.y &&
+          y < b.y + brickHeight
+        ) {
+          dy = -dy;
+          b.status = 0;
+        }
+      }
     }
   }
 };
@@ -121,7 +134,7 @@ let bricks = [];
 for (let c = 0; c < brickColumnCount; c++) {
   bricks[c] = [];
   for (let r = 0; r < brickRowCount; r++) {
-    bricks[c][r] = { x: 0, y: 0 };
+    bricks[c][r] = { x: 0, y: 0, status: 1 };
   }
 }
 
