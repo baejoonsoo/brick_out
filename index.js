@@ -25,6 +25,7 @@ const brickOffsetTop = 30;
 const brickOffsetLeft = 30;
 
 let score = 0;
+let lives = 3;
 
 // 화면에 공을 표시한다
 const drawBall = () => {
@@ -109,6 +110,12 @@ const drawScore = () => {
   ctx.fillText('Score: ' + score, 8, 20);
 };
 
+const drawLives = () => {
+  ctx.font = '16px Arial';
+  ctx.fillStyle = '#0095DD';
+  ctx.fillText('Lives: ' + lives, canvas.width - 65, 20);
+};
+
 function mouseMoveHandler(e) {
   var relativeX = e.clientX - canvas.offsetLeft;
   if (relativeX > 0 && relativeX < canvas.width) {
@@ -125,6 +132,7 @@ const draw = () => {
   collisionDetection();
   drawBricks();
   drawScore();
+  drawLives();
 
   if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
     // 죄우 벽면에 부딧힐 시 x 진행 방향을 반전 시킨다
@@ -137,9 +145,18 @@ const draw = () => {
     if (x > paddleX - ballRadius && x < paddleX + paddleWidth + ballRadius) {
       dy = -dy;
     } else {
-      alert('GAME OVER');
-      dy = -dy;
-      document.location.reload();
+      lives--;
+      if (!lives) {
+        alert('GAME OVER');
+        document.location.reload();
+        clearInterval(interval); // Needed for Chrome to end game
+      } else {
+        x = canvas.width / 2;
+        y = canvas.height - 30;
+        dx = 2;
+        dy = -2;
+        paddleX = (canvas.width - paddleWidth) / 2;
+      }
     }
   }
 
@@ -151,6 +168,8 @@ const draw = () => {
 
   x += dx;
   y += dy;
+
+  requestAnimationFrame(draw);
 };
 
 let bricks = [];
@@ -164,4 +183,5 @@ for (let c = 0; c < brickColumnCount; c++) {
 document.addEventListener('keydown', keyDownHandler, false);
 document.addEventListener('keyup', keyUpHandler, false);
 document.addEventListener('mousemove', mouseMoveHandler, false);
-setInterval(draw, 10);
+// setInterval(draw, 10);
+draw();
